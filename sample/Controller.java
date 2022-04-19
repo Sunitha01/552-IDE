@@ -2,7 +2,7 @@ package sample;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
@@ -13,14 +13,25 @@ import java.nio.file.Files;
 import java.util.stream.Stream;
 
 public class Controller extends Main{
+    public javafx.scene.text.Text numberText;
+    public ScrollPane scroll;
     File filename;
     Stage primaryStage;
-    @FXML
-    private Button run;
+    StringBuilder sb = new StringBuilder();
+    StringBuilder sb1 = new StringBuilder();
+    StringBuilder sb2 = new StringBuilder();
+    static int count = 0;
+    static String line;
+
+    int a =1;
+    int b =0;
+
+
     @FXML
     public TextArea output;
     @FXML
     public TextArea textedit;
+
 
     @FXML
 
@@ -60,6 +71,7 @@ public class Controller extends Main{
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
             //Load in all lines one by one into a StringBuilder separated by "\n" - compatible with TextArea
             String line;
             StringBuilder totalFile = new StringBuilder();
@@ -67,7 +79,27 @@ public class Controller extends Main{
             while (true) {
                 try {
                     if (!((line = reader.readLine()) != null)) break;
+// for line numbers
+                    if (numberText.getText().equals("1")  ) {
+
+                        sb1.append("1  ");
+//             System.out.println("hello");
+//             System.out.println(sb.toString());
+                    }
+                    a = a+1;
+                    int i = 0;
+
+                    int len1 = 3 - String.valueOf(a).length();
+                    sb1.append(String.valueOf(a));
+                    while( i < len1){
+                        sb1.append(" ");
+//                    System.out.println(sb.toString());
+                        i++;
+                    }
+                    numberText.setText(sb1.toString());
+//---
                     textedit.appendText(line);
+
                     textedit.appendText("\n");
                     //totalFile.append(line);
                     //totalFile.append("\n");
@@ -113,6 +145,7 @@ public class Controller extends Main{
     // save
     //
     public void save(ActionEvent actionEvent) {
+
 
 //        FileChooser file = new FileChooser();
 //        file.setTitle("Save Image");
@@ -301,6 +334,150 @@ public class Controller extends Main{
 }
 
 
+    public void enter(KeyEvent keyEvent) {
+//         System.out.println(numberText.getText());
+         if (numberText.getText().equals("1")  ) {
 
+             sb1.append("1  ");
+//             System.out.println("hello");
+//             System.out.println(sb.toString());
+         }
+
+        switch (keyEvent.getCode()) {
+            case ENTER:
+                a = a+1;
+                int i = 0;
+
+                int len1 = 3 - String.valueOf(a).length();
+                sb1.append(String.valueOf(a));
+                while( i < len1){
+                    sb1.append(" ");
+//                    System.out.println(sb.toString());
+                    i++;
+                }
+                numberText.setText(sb1.toString());
+                scroll.setVvalue(1.0);
+                scroll.setPannable(true);
+
+                scroll.viewportBoundsProperty();
+//                System.out.println(sb.toString());
+        }
+    }
+//      Format
+    public void format(ActionEvent actionEvent) {
+        System.out.println("Invoked");
+        StringBuilder sb = new StringBuilder();
+        line = " ";
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader(filename));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        while (true) {
+            try {
+                if (!((line = br.readLine()) != null)) break;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (line.contains("package") | (line.contains("import"))) {
+                if (line.contains(";") )
+                    sb.append(line.replace(";", ";\n").stripLeading());
+                else{
+                    sb.append(line.stripLeading());
+                }
+
+            }
+
+
+
+
+
+            if (line.contains(";") && !line.contains("for")) {
+                if (!(line.contains("package") | (line.contains("import")) )) {
+                    if (line.stripLeading().length() <= 1) {
+                        count = count-4;
+                        sb.append(line.replace(";", ";\n").stripLeading());
+                    } else {
+                        if (!line.contains("}")) {
+                            int i = 0;
+                            while (i < count) {
+                                sb.append(" ");
+                                i++;
+
+                            }
+
+
+                            sb.append(line.replace(";", ";\n").stripLeading());
+                        }
+                    }
+                }
+
+            }
+
+
+            if (line.contains("{")) {
+                if (line.stripLeading().length() <= 1){
+
+                    sb.append(line.replace("{", "{\n").stripLeading());
+                }
+                else {
+                    int i = 0;
+                    while (i < count) {
+                        sb.append(" ");
+                        i++;
+
+                    }
+                    sb.append(line.replace("{", "{\n").stripLeading());
+                    count = count + 4;
+                }
+
+
+
+            }
+            if (line.contains("}")  ){
+
+                int i = 4;
+                while (i < count) {
+                    sb.append(" ");
+                    i++;
+                }
+                sb.append(line.replace("}", "}\n").stripLeading());
+                count = count - 4;
+
+
+            }
+            if (!(line.contains("{") | line.contains(";") |  line.contains("}") | line.length()== 0)) {
+
+                int i = 0;
+                while (i < count) {
+                    sb.append(" ");
+                    i++;
+                }
+                sb.append(line.stripLeading());
+
+                count = count + 4;
+            }
+            if (!(line.contains("{")) && line.contains("for") ) {
+
+                count = count +4 ;
+                int i = 0;
+                while (i < count) {
+                    sb.append(" ");
+                    i++;
+                }
+                sb.append(line.stripLeading());
+                sb.append("\n");
+                //count = count + 1;
+            }
+
+
+        }
+        textedit.setText(sb.toString());
+        System.out.println(sb.toString());
+
+
+    }
 }
 
