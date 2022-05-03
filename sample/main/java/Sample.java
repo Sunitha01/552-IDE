@@ -1,22 +1,32 @@
+import com.jcraft.jsch.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
+import javafx.geometry.Side;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.controlsfx.control.textfield.AutoCompletionBinding;
+import org.controlsfx.control.textfield.TextFields;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.SshSessionFactory;
+import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.*;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
-import java.util.Locale;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class Sample extends HelloFX{
@@ -24,11 +34,13 @@ public class Sample extends HelloFX{
     public ScrollPane scroll;
     File filename;
     File filename1;
-
+    private List<String> options;
     Stage primaryStage;
     StringBuilder sb = new StringBuilder();
     StringBuilder sb1 = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
+    StringBuilder sb3 = new StringBuilder();
+    StringBuilder sb5 = new StringBuilder();
     static int count = 0;
     static String line;
     static String line1;
@@ -37,12 +49,16 @@ public class Sample extends HelloFX{
 
     int a =1;
     int b =0;
-
+    int linecount = 0;
+    private ContextMenu entriesPopup;
 
     @FXML
     public TextArea output;
     @FXML
     public TextArea textedit;
+    @FXML
+    public ContextMenu contextmenu;
+
 
 
     public void openAction(ActionEvent actionEvent) {
@@ -69,7 +85,6 @@ public class Sample extends HelloFX{
                 e.printStackTrace();
             }
 
-            //Load in all lines one by one into a StringBuilder separated by "\n" - compatible with TextArea
             String line;
             StringBuilder totalFile = new StringBuilder();
             long linesLoaded = 0;
@@ -112,7 +127,7 @@ public class Sample extends HelloFX{
     // save As
 
     public void saveAs(ActionEvent actionEvent) {
-
+        textedit.getCursor();
         FileChooser file = new FileChooser();
         file.setTitle("Save Image");
         File file1 = file.showSaveDialog(primaryStage);
@@ -135,35 +150,8 @@ public class Sample extends HelloFX{
     public void save(ActionEvent actionEvent) {
 
 
-//        FileChooser file = new FileChooser();
-//        file.setTitle("Save Image");
-//        //System.out.println(pic.getId());
-//        File file1 = file.showSaveDialog(primaryStage);
-//        filelocation(file1);
-        try {
-            PrintWriter writer;
-            writer = new PrintWriter(filename);
-            writer.println(textedit.getText());
-            writer.close();
-//                new BufferedWriter(new FileWriter(file1));
-//                area.getText().
-//            	FileWriter fileWriter = new FileWriter(file1);
-//            	area..write(fileWriter);
-//            	fileWriter.close();
-        }
-        catch(IOException ie) {
-            System.out.print(ie);
-        }
-        System.out.println(filename);
-
-    }
-
-    // autosave
-
-    public void save2(KeyEvent keyEvent) {
 
         try {
-            System.out.println("save the changes");
             PrintWriter writer;
             writer = new PrintWriter(filename);
             writer.println(textedit.getText());
@@ -175,8 +163,27 @@ public class Sample extends HelloFX{
         }
         System.out.println(filename);
 
-
     }
+
+//    // autosave
+//
+//    public void save2(KeyEvent keyEvent) {
+//
+//        try {
+//            System.out.println("save the changes");
+//            PrintWriter writer;
+//            writer = new PrintWriter(filename);
+//            writer.println(textedit.getText());
+//            writer.close();
+//
+//        }
+//        catch(IOException ie) {
+//            System.out.print(ie);
+//        }
+//        System.out.println(filename);
+//
+//
+//    }
 
     //Run
     public void run(ActionEvent actionEvent) {
@@ -266,14 +273,19 @@ public class Sample extends HelloFX{
     // Line Numbers
     public void enter(KeyEvent keyEvent) {
 
-        if (numberText.getText().equals("1")  ) {
+        if (linecount == 0  ) {
 
             sb1.append("1  ");
+            linecount = 1;
 
         }
+        System.out.println(keyEvent.getCode());
 
         switch (keyEvent.getCode()) {
             case ENTER:
+
+                linecount = 1;
+
                 a = a+1;
                 int i = 0;
 
@@ -281,7 +293,7 @@ public class Sample extends HelloFX{
                 sb1.append(String.valueOf(a));
                 while( i < len1){
                     sb1.append(" ");
-
+                    sb3.append(" ");
                     i++;
                 }
                 numberText.setText(sb1.toString());
@@ -289,6 +301,20 @@ public class Sample extends HelloFX{
                 scroll.setPannable(true);
 
                 scroll.viewportBoundsProperty();
+                break;
+            case SHIFT:
+
+                 System.out.println("Shift");
+
+
+                //contextmenu.show(textedit, Side.LEFT, 0, 0);
+                int caretPosition = textedit.getCaretPosition();
+                contextmenu.show(textedit,caretPosition, caretPosition);
+
+
+                contextmenu.setOnAction(e -> textedit.replaceText(caretPosition-1,caretPosition,((MenuItem)e.getTarget()).getText()));
+
+                break;
 
         }
     }
@@ -467,21 +493,72 @@ public class Sample extends HelloFX{
 
     // git push
 
-    public void pushgit(ActionEvent actionEvent) throws IOException, GitAPIException {
+    public void pushgit(ActionEvent actionEvent) throws IOException, GitAPIException, URISyntaxException {
+//        JSch jsch = new JSch();
+//        S session.setUserInfo(ui);
+//            session session = null;
+////        try {
+////            session = jsch.getSession("Sunitha01", "https://github.com/Sunitha01/552-IDE.git", 22); //default port is 22
+//////            UserInfo ui = new MyUserInfo();
+//////           ession.setPassword("America0105$".getBytes());
+//            session.connect();
+//            Channel channel = session.openChannel("sftp");
+//            channel.connect();
+//            System.out.println("Connected");
+//        } catch (JSchException e) {
+//            e.printStackTrace(System.out);
+//        } catch (Exception e){
+//            e.printStackTrace(System.out);
+//        } finally{
+//            session.disconnect();
+//            System.out.println("Disconnected");
+//        }
+//
+
+//
+//
+//        Git git = Git.init().setDirectory(new File("C:\\Users\\sunitha\\Desktop\\CloneExample1")).call();
+//
+//
+//        git.remoteAdd().setUri(new URIish("https://github.com/Sunitha01/552-IDE.git"));
+//
+
+        SSH jschConfigSessionFactory = new SSH();
+        JSch jsch = new JSch();
+//        try {
+////           jsch.addIdentity(".ssh/id_rsa");
+//  //          Path privateKeyPath = Paths.get("./id_ed25519.pub");
+//            //byte[] privateKey = Files.readAllBytes(privateKeyPath);
+//
+// //           jsch.addIdentity("ssh/id_ed25519");
+//            //jsch.addIdentity("./id_ed25519.pub","hello");
+//
+////            jsch.addIdentity("~/.ssh/id_rsa.pub");
+////            jsch.addIdentity("OZbfvBjDTLEgJaKtN738erfpbvNAAAzohulnsSMvXQE");
+////            jsch.setKnownHosts(" ~/.ssh/known_hosts");
+//
+//        } catch (JSchException e) {
+//            e.printStackTrace();
+//        }
+        SshSessionFactory.setInstance(jschConfigSessionFactory);
+
         Git git = Git.open(new File("C:\\Users\\sunitha\\Desktop\\CloneExample1"));
         Iterable<PushResult> pushResults = null;
 
         PushCommand pushCommand = git.push();
 
-        pushCommand.setRemote("https://github.com/Sunitha01/552-IDE.git");
+//       pushCommand.setRemote("https://github.com/Sunitha01/552-IDE.git");
+//       pushCommand.setRemote("https://Sunitha01.github.io/552-IDE/");
+        pushCommand.setRemote("git@github.com:Sunitha01/552-IDE.git");
 
-        pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("Sunitha01", "America0105$"));
+//        pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("Sunitha01", "America01$"));
         pushCommand.setPushAll();
+//        pushCommand.setTransportConfigCallback(transport -> );
            pushResults = pushCommand.call();
             System.out.println(pushResults);
     }
 
-    public void configure(ActionEvent actionEvent) {
+    public void configureSaveAs(ActionEvent actionEvent) {
         FileChooser file = new FileChooser();
         file.setTitle("Save Image");
         File file1 = file.showSaveDialog(primaryStage);
@@ -500,56 +577,87 @@ public class Sample extends HelloFX{
         filename= file1;
         filename1 = file1;
 
-//        FileChooser file = new FileChooser();
-//        file.setTitle("Open File");
-//        File fileToLoad = file.showOpenDialog(primaryStage);
-//        filelocation(fileToLoad);
-//        System.out.println(file.getTitle());
-//        System.out.println(fileToLoad);
-//        if (fileToLoad != null) {
-//            BufferedReader reader = null;
-//            try {
-//                reader = new BufferedReader(new FileReader(fileToLoad));
-//            } catch (FileNotFoundException e) {
-//                e.printStackTrace();
-//            }
-//            //Use Files.lines() to calculate total lines
-//            long lineCount;
-//            try (Stream<String> stream = Files.lines(fileToLoad.toPath())) {
-//                lineCount = stream.count();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//            //Load in all lines one by one into a StringBuilder separated by "\n" - compatible with TextArea
-//            String line;
-//            StringBuilder totalFile = new StringBuilder();
-//            long linesLoaded = 0;
-//            while (true) {
-//                try {
-//                    if (!((line = reader.readLine()) != null)) break;
-//
-//
-//
-//                    textedit.appendText(line);
-//
-//                    textedit.appendText("\n");
-//
-//
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//
-//            }
-//            filename1 = fileToLoad;
-//            filename = fileToLoad;
-//            System.out.println(totalFile);
-//        }
+
     }
+    public void configureOpen(ActionEvent actionEvent) {
+
+
+        FileChooser file = new FileChooser();
+        file.setTitle("Open File");
+        File fileToLoad = file.showOpenDialog(primaryStage);
+        filelocation(fileToLoad);
+        System.out.println(file.getTitle());
+        System.out.println(fileToLoad);
+        if (fileToLoad != null) {
+            BufferedReader reader = null;
+            try {
+                reader = new BufferedReader(new FileReader(fileToLoad));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            //Use Files.lines() to calculate total lines
+            long lineCount;
+            try (Stream<String> stream = Files.lines(fileToLoad.toPath())) {
+                lineCount = stream.count();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            String line;
+            StringBuilder totalFile = new StringBuilder();
+            long linesLoaded = 0;
+            while (true) {
+                try {
+                    if (!((line = reader.readLine()) != null)) break;
+
+
+
+                    textedit.appendText(line);
+
+                    textedit.appendText("\n");
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            filename1 = fileToLoad;
+            filename = fileToLoad;
+            System.out.println(totalFile);
+        }
+    }
+
+    public void configureSave(ActionEvent actionEvent) {
+
+
+
+        try {
+            PrintWriter writer;
+            writer = new PrintWriter(filename1);
+            writer.println(textedit.getText());
+            writer.close();
+
+        }
+        catch(IOException ie) {
+            System.out.print(ie);
+        }
+        System.out.println(filename1);
+
+    }
+
 
     public void clear(ActionEvent actionEvent) {
         textedit.clear();
+        numberText.setText(" ");
+
+        linecount = 0;
+        sb1.setLength(0);
+        a=1;
     }
+
+
 }
 
 

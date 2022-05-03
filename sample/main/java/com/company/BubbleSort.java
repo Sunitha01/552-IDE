@@ -1,5 +1,5 @@
 package com.company;
-//hello1
+
 public class BubbleSort
 {
     public void sort(int[] array )
