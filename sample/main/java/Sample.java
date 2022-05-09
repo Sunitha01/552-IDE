@@ -1,14 +1,10 @@
 import com.jcraft.jsch.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Side;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.controlsfx.control.textfield.AutoCompletionBinding;
-import org.controlsfx.control.textfield.TextFields;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
@@ -16,20 +12,15 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.SshSessionFactory;
-import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.*;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class Sample extends HelloFX{
+public class Sample extends IdeFX {
     public javafx.scene.text.Text numberText;
     public ScrollPane scroll;
     File filename;
@@ -260,11 +251,6 @@ public class Sample extends HelloFX{
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
-            System.out.println("hello1");
-
-
-
-
 
         }
 
@@ -319,8 +305,9 @@ public class Sample extends HelloFX{
         }
     }
 
+
     //      Format
-    public void format(ActionEvent actionEvent) {
+    public void format(ActionEvent actionEvent) throws IOException {
         System.out.println("Invoked");
         StringBuilder sb = new StringBuilder();
         line = " ";
@@ -332,109 +319,137 @@ public class Sample extends HelloFX{
         }
         while (true) {
             try {
-                if (!((line = br.readLine()) != null)) break;
+                if ((line = br.readLine()) == null) {
+
+                    break;
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            if (line.contains("package") | (line.contains("import"))) {
-                if (line.contains(";") )
-                    sb.append(line.replace(";", ";\n").stripLeading());
-                else{
-                    sb.append(line.stripLeading());
-                }
 
-            }
+            if (line.contains(";") && !(line.contains("{")  |  line.contains("}")) ){
+                if (!(line.contains("for"))) {
 
+                    int j = 0;
+                    while (j < count) {
+                        sb.append("*");
+                        j++;
+                    }
 
-
-
-
-            if (line.contains(";") && !line.contains("for")) {
-                if (!(line.contains("package") | (line.contains("import")) )) {
-                    if (line.stripLeading().length() <= 1) {
-                        count = count-4;
-                        sb.append(line.replace(";", ";\n").stripLeading());
-                    } else {
-                        if (!line.contains("}")) {
-                            int i = 0;
-                            while (i < count) {
-                                sb.append(" ");
-                                i++;
-
-                            }
+                        sb.append(line.stripLeading());
+                        sb.append("\n");
 
 
-                            sb.append(line.replace(";", ";\n").stripLeading());
-                        }
                     }
                 }
+                if (line.stripLeading().stripTrailing().length()==0){
 
-            }
-
-
-            if (line.contains("{")) {
-                if (line.stripLeading().length() <= 1){
-
-                    sb.append(line.replace("{", "{\n").stripLeading());
+//                    br.readLine();
                 }
-                else {
+
+                if (line.contains("}") && (line.stripLeading().stripTrailing().length() <= 1)  ) {
+
+                    count = count - 4;
                     int i = 0;
+                    System.out.println(count);
                     while (i < count) {
-                        sb.append(" ");
+                        sb.append("*");
                         i++;
 
                     }
-                    sb.append(line.replace("{", "{\n").stripLeading());
+                    sb.append(line.stripLeading());
+                    sb.append("\n");
+
+                }
+
+            if (line.contains("}") && !(line.stripLeading().stripTrailing().length()<= 1)  ) {
+//                count = count - 4;
+
+                int i = 0;
+                System.out.println(count);
+                while (i < count) {
+                    sb.append("*");
+                    i++;
+
+                }
+                sb.append(line.replace("}", "\n").stripLeading());
+                count = count - 4;
+                System.out.println(count);
+                int p = 0;
+                while (p < count) {
+                    sb.append("*");
+                    p++;
+
+                }
+                sb.append("}");
+                sb.append("\n");
+
+
+
+            }
+
+                if (line.contains("{") && (line.stripLeading().stripTrailing().length() <= 1)) {
+
+                    int i = 0;
+
+                    while (i < count) {
+                        sb.append("*");
+                        i++;
+
+                    }
+                    sb.append(line.stripLeading().stripTrailing());
+                    sb.append("\n");
                     count = count + 4;
                 }
 
+            if (line.contains("{") && !(line.stripLeading().stripTrailing().length() <= 1)) {
 
 
-            }
-            if (line.contains("}")  ){
-
-                int i = 4;
-                while (i < count) {
-                    sb.append(" ");
-                    i++;
-                }
-                sb.append(line.replace("}", "}\n").stripLeading());
-                count = count - 4;
-
-
-            }
-            if (!(line.contains("{") | line.contains(";") |  line.contains("}") | line.length()== 0)) {
 
                 int i = 0;
                 while (i < count) {
-                    sb.append(" ");
+                    sb.append("*");
                     i++;
-                }
-                sb.append(line.stripLeading());
 
+                }
+                sb.append(line.replace("{", "\n").stripLeading());
+                int k = 0;
+                while (k < count) {
+                    sb.append("*");
+                    k++;
+
+                }
+                sb.append("{\n");
                 count = count + 4;
             }
-            if (!(line.contains("{")) && line.contains("for") ) {
 
-                count = count +4 ;
-                int i = 0;
-                while (i < count) {
-                    sb.append(" ");
-                    i++;
+            if (!(line.contains("{") | line.contains(";") |  line.contains("}"))) {
+                if (!(line.stripLeading().stripTrailing().length() == 0)) {
+
+                    int i = 0;
+                    while (i < count) {
+
+                        sb.append("*");
+                        i++;
+
+                    }
+                    sb.append(line.stripLeading());
+                    sb.append("\n");
+                    System.out.println(sb.toString());
                 }
-                sb.append(line.stripLeading());
-                sb.append("\n");
-                //count = count + 1;
             }
 
 
-        }
+
+
+            }
+        System.out.println("out from while");
         textedit.setText(sb.toString());
         System.out.println(sb.toString());
+        br.close();
+        }
 
-
-    }
     // git clone
     public void clone(ActionEvent actionEvent) throws IOException {
         BufferedReader reader = null;
@@ -466,10 +481,10 @@ public class Sample extends HelloFX{
             System.out.println(uri);
             System.out.println(file);
             cloneCommand.setURI(uri);
-//            cloneCommand.setProgressMonitor(new SimpleProgressMonitor());
+
                 cloneCommand.setDirectory(new File(file));
                 cloneCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("Sunitha01", "America0105$"));
-//                cloneCommand.setBranch(DEFAULT_REMOTE_BRANCH);
+
                 cloneCommand.call();
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -494,52 +509,12 @@ public class Sample extends HelloFX{
     // git push
 
     public void pushgit(ActionEvent actionEvent) throws IOException, GitAPIException, URISyntaxException {
-//        JSch jsch = new JSch();
-//        S session.setUserInfo(ui);
-//            session session = null;
-////        try {
-////            session = jsch.getSession("Sunitha01", "https://github.com/Sunitha01/552-IDE.git", 22); //default port is 22
-//////            UserInfo ui = new MyUserInfo();
-//////           ession.setPassword("America0105$".getBytes());
-//            session.connect();
-//            Channel channel = session.openChannel("sftp");
-//            channel.connect();
-//            System.out.println("Connected");
-//        } catch (JSchException e) {
-//            e.printStackTrace(System.out);
-//        } catch (Exception e){
-//            e.printStackTrace(System.out);
-//        } finally{
-//            session.disconnect();
-//            System.out.println("Disconnected");
-//        }
-//
 
-//
-//
-//        Git git = Git.init().setDirectory(new File("C:\\Users\\sunitha\\Desktop\\CloneExample1")).call();
-//
-//
-//        git.remoteAdd().setUri(new URIish("https://github.com/Sunitha01/552-IDE.git"));
-//
+
 
         SSH jschConfigSessionFactory = new SSH();
         JSch jsch = new JSch();
-//        try {
-////           jsch.addIdentity(".ssh/id_rsa");
-//  //          Path privateKeyPath = Paths.get("./id_ed25519.pub");
-//            //byte[] privateKey = Files.readAllBytes(privateKeyPath);
-//
-// //           jsch.addIdentity("ssh/id_ed25519");
-//            //jsch.addIdentity("./id_ed25519.pub","hello");
-//
-////            jsch.addIdentity("~/.ssh/id_rsa.pub");
-////            jsch.addIdentity("OZbfvBjDTLEgJaKtN738erfpbvNAAAzohulnsSMvXQE");
-////            jsch.setKnownHosts(" ~/.ssh/known_hosts");
-//
-//        } catch (JSchException e) {
-//            e.printStackTrace();
-//        }
+
         SshSessionFactory.setInstance(jschConfigSessionFactory);
 
         Git git = Git.open(new File("C:\\Users\\sunitha\\Desktop\\CloneExample1"));
@@ -547,15 +522,13 @@ public class Sample extends HelloFX{
 
         PushCommand pushCommand = git.push();
 
-//       pushCommand.setRemote("https://github.com/Sunitha01/552-IDE.git");
-//       pushCommand.setRemote("https://Sunitha01.github.io/552-IDE/");
         pushCommand.setRemote("git@github.com:Sunitha01/552-IDE.git");
 
-//        pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("Sunitha01", "America01$"));
         pushCommand.setPushAll();
-//        pushCommand.setTransportConfigCallback(transport -> );
+
            pushResults = pushCommand.call();
             System.out.println(pushResults);
+
     }
 
     public void configureSaveAs(ActionEvent actionEvent) {

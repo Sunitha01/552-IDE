@@ -6,7 +6,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 
-public class HelloFX extends Application {
+public class IdeFX extends Application {
     static File filename;
 
     public static void filelocation(File file) {
