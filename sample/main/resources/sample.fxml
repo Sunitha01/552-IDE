@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -17,7 +18,21 @@
     <items>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="398.0" prefWidth="314.0">
             <children>
-                <TextArea fx:id="textedit" layoutX="32.0" layoutY="24.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#enter" onKeyTyped="#save2" prefHeight="654.0" prefWidth="450.0" />
+                <TextArea fx:id="textedit" layoutX="32.0" layoutY="24.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#enter"   prefHeight="654.0" prefWidth="450.0">
+               <contextMenu>
+                  <ContextMenu fx:id="contextmenu"  >
+                    <items>
+                      <MenuItem mnemonicParsing="false" text="public" />
+                        <MenuItem mnemonicParsing="false" text="void" />
+                        <MenuItem mnemonicParsing="false" text="main" />
+                        <MenuItem mnemonicParsing="false" text="static" />
+                        <MenuItem mnemonicParsing="false" text="import" />
+                        <MenuItem mnemonicParsing="false" text="import" />
+                        <MenuItem mnemonicParsing="false" text="private" />
+                        <MenuItem mnemonicParsing="false" text="final" />
+                    </items>
+                  </ContextMenu>
+               </contextMenu></TextArea>
                 <VBox layoutY="25.0" prefHeight="646.0" prefWidth="36.0">
                     <children>
                         <ScrollPane fx:id="scroll" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="654.0" prefWidth="36.0">
@@ -38,9 +53,10 @@
                                 <MenuItem mnemonicParsing="false" onAction="#openAction" text="Open" />
                                 <MenuItem mnemonicParsing="false" onAction="#saveAs" text="Save As" />
                                 <MenuItem mnemonicParsing="false" onAction="#clear" text="Clear" />
+                        <MenuItem mnemonicParsing="false" onAction="#save" text="Save" />
                             </items>
                         </Menu>
-                        <Menu mnemonicParsing="false" onAction="#format" text="Edit">
+                        <Menu mnemonicParsing="false"  text="Edit">
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#format" text="Format" />
                             </items></Menu>
@@ -50,7 +66,13 @@
                         <MenuItem mnemonicParsing="false" onAction="#addgit" text="Add" />
                         <MenuItem mnemonicParsing="false" onAction="#commitgit" text="Commit" />
                         <MenuItem mnemonicParsing="false" onAction="#pushgit" text="Push" />
-                        <MenuItem mnemonicParsing="false" onAction="#configure" text="Configure" />
+                        <Menu mnemonicParsing="false" text="Configure">
+                          <items>
+                            <MenuItem mnemonicParsing="false" onAction="#configureOpen" text="Open" />
+                              <MenuItem mnemonicParsing="false" onAction="#configureSaveAs" text="SaveAs" />
+                              <MenuItem mnemonicParsing="false" onAction="#configureSave" text="Save" />
+                          </items>
+                        </Menu>
                             </items>
                         </Menu>
                     </menus>
