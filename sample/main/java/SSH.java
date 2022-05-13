@@ -14,12 +14,8 @@ public class SSH extends JschConfigSessionFactory {
     protected JSch getJSch(final OpenSshConfig.Host hc, FS fs) throws JSchException {
         JSch jsch = super.getJSch(hc, fs);
         jsch.removeAllIdentity();
-//        jsch.addIdentity( "~/.ssh/id_ed25519" );
         jsch.addIdentity("~/.ssh/id_rsa","hello");
         jsch.setKnownHosts("~/.ssh/known_hosts");
-
-//        jsch.addIdentity( "~/.ssh/id_rsa.pub" );
-//        jsch.addIdentity( "/c/Users/sunitha/.ssh/id_rsa/RSA" );
        return jsch;
     }
 }

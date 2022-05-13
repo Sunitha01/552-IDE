@@ -37,7 +37,7 @@
                     <children>
                         <ScrollPane fx:id="scroll" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="654.0" prefWidth="36.0">
                             <content>
-                                <Text fx:id="numberText" strokeType="OUTSIDE" strokeWidth="0.0" text="1" wrappingWidth="20.0">
+                                <Text fx:id="numberText" strokeType="OUTSIDE" strokeWidth="0.0"  wrappingWidth="20.0">
                                     <font>
                                         <Font size="13.0" />
                                     </font></Text>

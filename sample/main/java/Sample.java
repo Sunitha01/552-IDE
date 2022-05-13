@@ -25,23 +25,20 @@ public class Sample extends IdeFX {
     public ScrollPane scroll;
     File filename;
     File filename1;
-    private List<String> options;
     Stage primaryStage;
-    StringBuilder sb = new StringBuilder();
     StringBuilder sb1 = new StringBuilder();
-    StringBuilder sb2 = new StringBuilder();
     StringBuilder sb3 = new StringBuilder();
-    StringBuilder sb5 = new StringBuilder();
     static int count = 0;
     static String line;
     static String line1;
     static String uri;
     static String file;
 
-    int a =1;
-    int b =0;
+    int a = 1;
+    int b = 0;
     int linecount = 0;
-    private ContextMenu entriesPopup;
+    int startCount = 0;
+
 
     @FXML
     public TextArea output;
@@ -51,16 +48,12 @@ public class Sample extends IdeFX {
     public ContextMenu contextmenu;
 
 
-
     public void openAction(ActionEvent actionEvent) {
-
 
         FileChooser file = new FileChooser();
         file.setTitle("Open File");
         File fileToLoad = file.showOpenDialog(primaryStage);
         filelocation(fileToLoad);
-        System.out.println(file.getTitle());
-        System.out.println(fileToLoad);
         if (fileToLoad != null) {
             BufferedReader reader = null;
             try {
@@ -68,32 +61,27 @@ public class Sample extends IdeFX {
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-            //Use Files.lines() to calculate total lines
-            long lineCount;
-            try (Stream<String> stream = Files.lines(fileToLoad.toPath())) {
-                lineCount = stream.count();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
             String line;
             StringBuilder totalFile = new StringBuilder();
-            long linesLoaded = 0;
+
             while (true) {
                 try {
                     if (!((line = reader.readLine()) != null)) break;
 //  Logic for line number starts here
-                    if (numberText.getText().equals("1")  ) {
+
+                    if (startCount == 0) {
 
                         sb1.append("1  ");
 
                     }
-                    a = a+1;
+                    startCount = 1;
+                    a = a + 1;
                     int i = 0;
 
                     int len1 = 3 - String.valueOf(a).length();
                     sb1.append(String.valueOf(a));
-                    while( i < len1){
+                    while (i < len1) {
                         sb1.append(" ");
 
                         i++;
@@ -111,8 +99,7 @@ public class Sample extends IdeFX {
 
             }
             filename = fileToLoad;
-            System.out.println(totalFile);
-            }
+        }
     }
 
     // save As
@@ -129,17 +116,15 @@ public class Sample extends IdeFX {
             writer.println(textedit.getText());
             writer.close();
 
-        }
-        catch(IOException ie) {
+        } catch (IOException ie) {
             System.out.print(ie);
         }
-        System.out.println(file1);
-        filename= file1;
+        filename = file1;
     }
+
     // save
     //
     public void save(ActionEvent actionEvent) {
-
 
 
         try {
@@ -148,41 +133,21 @@ public class Sample extends IdeFX {
             writer.println(textedit.getText());
             writer.close();
 
-        }
-        catch(IOException ie) {
+        } catch (IOException ie) {
             System.out.print(ie);
         }
-        System.out.println(filename);
+
 
     }
 
-//    // autosave
-//
-//    public void save2(KeyEvent keyEvent) {
-//
-//        try {
-//            System.out.println("save the changes");
-//            PrintWriter writer;
-//            writer = new PrintWriter(filename);
-//            writer.println(textedit.getText());
-//            writer.close();
-//
-//        }
-//        catch(IOException ie) {
-//            System.out.print(ie);
-//        }
-//        System.out.println(filename);
-//
-//
-//    }
 
     //Run
     public void run(ActionEvent actionEvent) {
 
         output.clear();
-        System.out.println(filename);
+
         String command = "java  " + filename;
-        System.out.println(command);
+
         Process pro = null;
 
         try {
@@ -196,7 +161,7 @@ public class Sample extends IdeFX {
             pro.waitFor();
             String line2 = command + " exitValue() " + pro.exitValue();
             output.appendText(line2);
-            System.out.println(command + " exitValue() " + pro.exitValue());
+
 
         } catch (IOException | InterruptedException ioException) {
             ioException.printStackTrace();
@@ -207,9 +172,9 @@ public class Sample extends IdeFX {
     //compile
     public void compile(ActionEvent actionEvent) {
         output.clear();
-        System.out.println(filename);
+
         String command = "javac  " + filename;
-        System.out.println(command);
+
         Process pro = null;
 
         try {
@@ -224,7 +189,7 @@ public class Sample extends IdeFX {
             String line2 = command + " exitValue() " + pro.exitValue();
 
             output.appendText(line2);
-            System.out.println(command + " exitValue() " + pro.exitValue());
+
 
         } catch (IOException | InterruptedException ioException) {
             ioException.printStackTrace();
@@ -232,16 +197,16 @@ public class Sample extends IdeFX {
     }
 
 
-    public  void printLines(String cmd, InputStream ins) {
-        String line ;
-        System.out.println("hello");
+    public void printLines(String cmd, InputStream ins) {
+        String line;
+
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(ins));
         while (true) {
 
             try {
                 line = in.readLine();
-                System.out.println(line);
+
                 if (line == null)
 
                     break;
@@ -259,25 +224,25 @@ public class Sample extends IdeFX {
     // Line Numbers
     public void enter(KeyEvent keyEvent) {
 
-        if (linecount == 0  ) {
+        if (linecount == 0 && a == 1) {
 
             sb1.append("1  ");
             linecount = 1;
 
         }
-        System.out.println(keyEvent.getCode());
+
 
         switch (keyEvent.getCode()) {
             case ENTER:
 
                 linecount = 1;
 
-                a = a+1;
+                a = a + 1;
                 int i = 0;
 
                 int len1 = 3 - String.valueOf(a).length();
                 sb1.append(String.valueOf(a));
-                while( i < len1){
+                while (i < len1) {
                     sb1.append(" ");
                     sb3.append(" ");
                     i++;
@@ -290,16 +255,9 @@ public class Sample extends IdeFX {
                 break;
             case SHIFT:
 
-                 System.out.println("Shift");
-
-
-                //contextmenu.show(textedit, Side.LEFT, 0, 0);
                 int caretPosition = textedit.getCaretPosition();
-                contextmenu.show(textedit,caretPosition, caretPosition);
-
-
-                contextmenu.setOnAction(e -> textedit.replaceText(caretPosition-1,caretPosition,((MenuItem)e.getTarget()).getText()));
-
+                contextmenu.show(textedit, caretPosition, caretPosition);
+                contextmenu.setOnAction(e -> textedit.replaceText(caretPosition - 1, caretPosition, ((MenuItem) e.getTarget()).getText()));
                 break;
 
         }
@@ -308,7 +266,7 @@ public class Sample extends IdeFX {
 
     //      Format
     public void format(ActionEvent actionEvent) throws IOException {
-        System.out.println("Invoked");
+
         StringBuilder sb = new StringBuilder();
         line = " ";
         BufferedReader br = null;
@@ -328,57 +286,53 @@ public class Sample extends IdeFX {
             }
 
 
-            if (line.contains(";") && !(line.contains("{")  |  line.contains("}")) ){
+            if (line.contains(";") && !(line.contains("{") | line.contains("}"))) {
                 if (!(line.contains("for"))) {
 
                     int j = 0;
                     while (j < count) {
-                        sb.append("*");
+                        sb.append(" ");
                         j++;
                     }
 
-                        sb.append(line.stripLeading());
-                        sb.append("\n");
-
-
-                    }
-                }
-                if (line.stripLeading().stripTrailing().length()==0){
-
-//                    br.readLine();
-                }
-
-                if (line.contains("}") && (line.stripLeading().stripTrailing().length() <= 1)  ) {
-
-                    count = count - 4;
-                    int i = 0;
-                    System.out.println(count);
-                    while (i < count) {
-                        sb.append("*");
-                        i++;
-
-                    }
                     sb.append(line.stripLeading());
                     sb.append("\n");
 
-                }
 
-            if (line.contains("}") && !(line.stripLeading().stripTrailing().length()<= 1)  ) {
-//                count = count - 4;
+                }
+            }
+
+
+            if (line.contains("}") && (line.stripLeading().stripTrailing().length() <= 1)) {
+
+                count = count - 4;
+                int i = 0;
+
+                while (i < count) {
+                    sb.append(" ");
+                    i++;
+
+                }
+                sb.append(line.stripLeading());
+                sb.append("\n");
+
+            }
+
+            if (line.contains("}") && !(line.stripLeading().stripTrailing().length() <= 1)) {
 
                 int i = 0;
-                System.out.println(count);
+
                 while (i < count) {
-                    sb.append("*");
+                    sb.append(" ");
                     i++;
 
                 }
                 sb.append(line.replace("}", "\n").stripLeading());
                 count = count - 4;
-                System.out.println(count);
+
                 int p = 0;
                 while (p < count) {
-                    sb.append("*");
+                    sb.append(" ");
                     p++;
 
                 }
@@ -386,37 +340,35 @@ public class Sample extends IdeFX {
                 sb.append("\n");
 
 
-
             }
 
-                if (line.contains("{") && (line.stripLeading().stripTrailing().length() <= 1)) {
+            if (line.contains("{") && (line.stripLeading().stripTrailing().length() <= 1)) {
 
-                    int i = 0;
+                int i = 0;
 
-                    while (i < count) {
-                        sb.append("*");
-                        i++;
+                while (i < count) {
+                    sb.append(" ");
+                    i++;
 
-                    }
-                    sb.append(line.stripLeading().stripTrailing());
-                    sb.append("\n");
-                    count = count + 4;
                 }
+                sb.append(line.stripLeading().stripTrailing());
+                sb.append("\n");
+                count = count + 4;
+            }
 
             if (line.contains("{") && !(line.stripLeading().stripTrailing().length() <= 1)) {
 
 
-
                 int i = 0;
                 while (i < count) {
-                    sb.append("*");
+                    sb.append(" ");
                     i++;
 
                 }
                 sb.append(line.replace("{", "\n").stripLeading());
                 int k = 0;
                 while (k < count) {
-                    sb.append("*");
+                    sb.append(" ");
                     k++;
 
                 }
@@ -424,31 +376,29 @@ public class Sample extends IdeFX {
                 count = count + 4;
             }
 
-            if (!(line.contains("{") | line.contains(";") |  line.contains("}"))) {
+            if (!(line.contains("{") | line.contains(";") | line.contains("}"))) {
                 if (!(line.stripLeading().stripTrailing().length() == 0)) {
 
                     int i = 0;
                     while (i < count) {
 
-                        sb.append("*");
+                        sb.append(" ");
                         i++;
 
                     }
                     sb.append(line.stripLeading());
                     sb.append("\n");
-                    System.out.println(sb.toString());
+
                 }
             }
 
 
-
-
-            }
-        System.out.println("out from while");
-        textedit.setText(sb.toString());
-        System.out.println(sb.toString());
-        br.close();
         }
+
+        textedit.setText(sb.toString());
+
+        br.close();
+    }
 
     // git clone
     public void clone(ActionEvent actionEvent) throws IOException {
@@ -463,31 +413,30 @@ public class Sample extends IdeFX {
         while (true) {
 
             if (!((line1 = reader.readLine()) != null)) break;
-            if (!line1.equals(" ") && count ==0) {
+            if (!line1.equals(" ") && count == 0) {
                 file = line1;
 
-                System.out.println(file);
+
             }
 
             if (!line1.equals(" ") && count == 1) {
                 uri = line1;
-                System.out.println(uri);
+
             }
             count++;
         }
 
         try {
-        CloneCommand cloneCommand = new CloneCommand();
-            System.out.println(uri);
-            System.out.println(file);
+            CloneCommand cloneCommand = new CloneCommand();
+
             cloneCommand.setURI(uri);
 
-                cloneCommand.setDirectory(new File(file));
-                cloneCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("Sunitha01", "America0105$"));
+            cloneCommand.setDirectory(new File(file));
+            cloneCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("Sunitha01", "America0105$"));
 
-                cloneCommand.call();
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
+            cloneCommand.call();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -511,7 +460,6 @@ public class Sample extends IdeFX {
     public void pushgit(ActionEvent actionEvent) throws IOException, GitAPIException, URISyntaxException {
 
 
-
         SSH jschConfigSessionFactory = new SSH();
         JSch jsch = new JSch();
 
@@ -526,8 +474,8 @@ public class Sample extends IdeFX {
 
         pushCommand.setPushAll();
 
-           pushResults = pushCommand.call();
-            System.out.println(pushResults);
+        pushResults = pushCommand.call();
+        System.out.println(pushResults);
 
     }
 
@@ -542,16 +490,16 @@ public class Sample extends IdeFX {
             writer.println(textedit.getText());
             writer.close();
 
-        }
-        catch(IOException ie) {
+        } catch (IOException ie) {
             System.out.print(ie);
         }
-        System.out.println(file1);
-        filename= file1;
+
+        filename = file1;
         filename1 = file1;
 
 
     }
+
     public void configureOpen(ActionEvent actionEvent) {
 
 
@@ -559,8 +507,7 @@ public class Sample extends IdeFX {
         file.setTitle("Open File");
         File fileToLoad = file.showOpenDialog(primaryStage);
         filelocation(fileToLoad);
-        System.out.println(file.getTitle());
-        System.out.println(fileToLoad);
+
         if (fileToLoad != null) {
             BufferedReader reader = null;
             try {
@@ -568,22 +515,13 @@ public class Sample extends IdeFX {
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-            //Use Files.lines() to calculate total lines
-            long lineCount;
-            try (Stream<String> stream = Files.lines(fileToLoad.toPath())) {
-                lineCount = stream.count();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
 
             String line;
             StringBuilder totalFile = new StringBuilder();
-            long linesLoaded = 0;
             while (true) {
                 try {
                     if (!((line = reader.readLine()) != null)) break;
-
 
 
                     textedit.appendText(line);
@@ -598,12 +536,11 @@ public class Sample extends IdeFX {
             }
             filename1 = fileToLoad;
             filename = fileToLoad;
-            System.out.println(totalFile);
+
         }
     }
 
     public void configureSave(ActionEvent actionEvent) {
-
 
 
         try {
@@ -612,11 +549,10 @@ public class Sample extends IdeFX {
             writer.println(textedit.getText());
             writer.close();
 
-        }
-        catch(IOException ie) {
+        } catch (IOException ie) {
             System.out.print(ie);
         }
-        System.out.println(filename1);
+
 
     }
 
@@ -627,7 +563,7 @@ public class Sample extends IdeFX {
 
         linecount = 0;
         sb1.setLength(0);
-        a=1;
+        a = 1;
     }
 
 
